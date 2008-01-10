@@ -1,0 +1,67 @@
+<VirtualHost *:80>
+  ServerAdmin <%= server_administrator_email_address %>
+  ServerName <%= fetch(:fully_qualified_domain_name) %>
+  # Users insist on putting the www here :(
+  #
+  ServerAlias www.<%= fetch(:fully_qualified_domain_name) %>
+  
+  # Setup a balancing cluster to manage requests to our application.
+  #
+  <Proxy balancer://<%= balancer_name %>>
+  <%= (1..(dispatcher_instances)).collect{ |i| "BalancerMember http://127.0.0.1:#{first_dispatcher_port + i - 1}" }.join("\n  ") %>
+
+  Order allow,deny
+  # FIXME: Should this be from localhost only?
+  #
+  Allow from all
+  </Proxy>
+  
+  <% if apache_serves_static_assets %>
+  RewriteEngine On
+  DocumentRoot <%= public_path %>
+  <Directory <%= public_path %>>
+    Options FollowSymLinks
+    # Ignore and .htaccess files in that directory.
+    # Makes Apache respond faster.
+    #
+    AllowOverride None
+
+    Order allow,deny
+    Allow from all
+  </Directory>
+  
+  # Prettier error messages
+  #
+  ErrorDocument 404 /404.html
+  <%= (500..505).collect { |i| "ErrorDocument #{i} /500.html"}.join("\n  ") %>
+  
+  # Remove the leading www if it exists.
+  # http://no-www.org/
+  #
+  RewriteCond %{HTTP_HOST} ^www\.<%= fetch(:fully_qualified_domain_name) %>$ [NC]
+  RewriteRule ^(.*)$ http://<%= fetch(:fully_qualified_domain_name) %>$1 [R=301,L]
+
+  # Check for maintenance file and redirect all requests
+  # This allows us to disable the website using rake deploy:web:disable
+  #
+  RewriteCond %{DOCUMENT_ROOT}/system/maintenance.html -f
+  RewriteCond %{SCRIPT_FILENAME} !maintenance.html
+  RewriteRule ^.*$ /system/maintenance.html [L]
+
+  # Rewrite index to check for static index file
+  #
+  RewriteRule ^/$ /index.html [QSA] 
+
+  # Rewrite to check for Rails cached page
+  #
+  RewriteRule ^([^.]+)$ $1.html [QSA]
+
+  # Redirect all non-static requests to cluster
+  #
+  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
+  RewriteRule ^/(.*)$ balancer://<%= balancer_name %>%{REQUEST_URI} [P,QSA,L]
+  <% else %>
+  ProxyPass / balancer://<%= balancer_name %>/
+  ProxyPassReverse / balancer://<%= balancer_name %>/
+  <% end %>
+</VirtualHost>
