@@ -3,7 +3,7 @@ set :scm_auth_cache, true
 set(:repository_root) { raise }
 set(:deploy_to) { "/var/www/#{fetch(:fully_qualified_domain_name)}" }
 set :deploy_via, :remote_cache
-set(:repository) { "#{repository_root}#{application}/trunk" }
+set(:repository) { "#{repository_root}trunk/#{application}/" }
 set :create_tags_on_deploy, false
 set(:repository_tag_base) { "#{repository_root}/#{application}/tags" }
 
