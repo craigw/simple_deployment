@@ -4,8 +4,8 @@ set(:repository_root) { raise }
 set(:deploy_to) { "/var/www/#{fetch(:fully_qualified_domain_name)}" }
 set :deploy_via, :remote_cache
 set(:repository) { "#{repository_root}trunk/#{application}/" }
-set :create_tags_on_deploy, false
-set(:repository_tag_base) { "#{repository_root}/#{application}/tags" }
+set :create_tags_on_deploy, true
+set(:repository_tag_base) { "#{repository_root}tags/#{application}/" }
 
 namespace :subversion do
   task :tag_release do
