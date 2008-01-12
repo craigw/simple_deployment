@@ -7,7 +7,7 @@ namespace :deploy do
 
   task :add_application_user_account, :roles => [ :app, :db, :web ] do
     as_administrator do
-      sudo "id #{fetch(:application_username)} > /dev/null 2>&1 || (sudo /usr/sbin/groupadd #{fetch(:application_username)}; /usr/sbin/useradd -g xit -m -c '#{fetch(:application_username)}' #{fetch(:application_username)}) > /dev/null"
+      sudo "id #{fetch(:application_username)} > /dev/null 2>&1 || (sudo /usr/sbin/groupadd #{fetch(:application_username)}; /usr/sbin/useradd -g #{fetch(:application_username)} -m -c '#{fetch(:application_username)}' #{fetch(:application_username)}) > /dev/null"
     end
   end
 
