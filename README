@@ -1,2 +1,159 @@
 XeriomPlatform
 ==============
+
+A deployment recipe and library based on requirements for projects undertaken 
+at Xeriom Networks.
+
+Requirements
+------------
+
+If you'd like to use the deployment recipe you'll need Capistrano 2. The 
+library will require a reasonably recent Rails installation.
+
+Your Subversion repository should be in the following layout:
+
+  +repository root+/
+    trunk/
+      +application_name+
+    tags/
+      +application_name+
+    branches/
+
+For instance, the Xeriom respository looks something like this:
+
+  https://code.xeriom.net/svn/Xeriom/
+    trunk/
+      information_tool
+      website/
+      [ other projects ]
+      plugins/
+    tags/
+      information_tool
+      website/
+      [ other projects ]
+      plugins/
+    branches/
+
+SSH should be setup using a key-pair which should be findable from 
+$HOME/.ssh/identity. I have a symlink from here to my real private identity 
+file. The administrative user (see Configuring, below) should have the public 
+half of this key installed in their authorised keys file.
+
+Your server should have some software already installed - Apache, MySQL, 
+Mongrel & Mongrel Cluster gems, Ruby, etc should be installed. Here's how to 
+do that with Ubuntu 7.04.
+
+  sudo apt-get update
+  sudo apt-get upgrade
+  sudo apt-get install build-essential
+  sudo apt-get install ruby ri rdoc mysql-server libmysql-ruby ruby1.8-dev \ 
+    irb1.8 libdbd-mysql-perl libdbi-perl libmysql-ruby1.8 \
+    libmysqlclient15off libnet-daemon-perl libplrpc-perl libreadline-ruby1.8 \
+    libruby1.8 mysql-client-5.0 mysql-common mysql-server-5.0 rdoc1.8 ri1.8 \
+    ruby1.8 libmysqlclient15-dev rails apache2
+  sudo gem install mysql mongrel mongrel_cluster -y
+  sudo a2enmod proxy_balancer
+  sudo a2enmod proxy_http
+  sudo a2enmod proxy_connect
+  sudo a2enmod rewrite
+
+
+Installing
+----------
+
+Change into your plugins directory and use Piston[1] to install the Xeriom Platform.
+
+  cd vendor/plugins
+  svn up
+  piston import \
+    https://code.xeriom.net/svn/Xeriom/trunk/plugins/xeriom_platform/
+  svn ci xeriom_platform -m "Pulling in the Xeriom Platform."
+
+[1] http://piston.rubyforge.org/
+
+
+Configuring
+-----------
+
+If you haven't already, Capify your project.
+
+  capify .
+
+You should get ta config/deploy.rb file. That's where the magic happens.
+
+There are a bunch of variables you can configure - so many that it'll take me 
+ages to list them all - so here are the required variables... I'll add the 
+optional variables soon. Honest.
+
+Tell the recipe what your application is called. This is used as the 
+application name in the Subversion repository. See the requirements section 
+for how the URL is constructed. 
+
+  set :application, "xit"
+
+We also need to know where your Subversion respository lives. Again, refer to 
+the requirements section above to see how this is used.
+
+  set :repository_root,  "https://code.xeriom.net/svn/Xeriom/"
+
+The setup process requires sudo access to install and configure various bits 
+of software. Enter the user on the remote server that you've granted this 
+access to. If this is not set it will default to ENV['USER'].
+
+  set :administrative_user, "craig"
+
+Which subdomain or your domain will this applicaiton live at? If you use 
+staging (which is the default) this will be used to construct URLs for your 
+staging servers:
+
+  Production will be dns_name.domain
+  Staging will be dns_name-staging.domain
+  Integration will be dns_name-integration.domain.
+
+If you leave this blank it will default to the application name.
+
+  set :dns_name, "xit"
+
+Depending on your Subversion setup, you may need to specify a username and 
+password on the command line to be able to checkout the source (we do here at 
+Xeriom).
+
+  set :scm_username, "deploy"   # Or another user that has read-only access.
+  set :scm_password, "password" # This is a fake password - put in a real one.
+
+
+Deployment
+----------
+
+For the first deployment we'll need to do a little housekeeping so we run a 
+special task.
+
+  cap production deploy:setup
+  cap production apache:symlink
+  cap production deploy:initial
+
+For subsequent deploys you can run the regular task.
+
+  cap production deploy
+
+
+Bugs
+----
+
+If anything goes wrong (it's quite likely - this is a very new recipe) please 
+let me know: craig@xeriom.net.
+
+
+Credit
+------
+
+This plugin was inspired by Mathie's rubaidh_platform plugin.
+  http://repos.rubaidh.com/plugins/trunk/rubaidh_platform/
+I've changed and added quite a bit of code to fit in with how our projects 
+work.
+
+Licence
+-------
+
+Copyright (C) 2007 Rubaidh Ltd. Release under the MIT licence.
+Copyright (C) 2008 Xeriom Networks Ltd. Release under the MIT licence.
