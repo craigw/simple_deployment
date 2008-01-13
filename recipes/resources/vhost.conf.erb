@@ -1,9 +1,15 @@
 <VirtualHost *:80>
   ServerAdmin <%= server_administrator_email_address %>
   ServerName <%= fetch(:fully_qualified_domain_name) %>
+  <% if fetch(:dns_name) == "www" %>
+  <% if rails_environment == "production" %>
+  ServerAlias <%= fetch(:domain) %>
+  <% end %>
+  <% else %>
   # Users insist on putting the www here :(
   #
   ServerAlias www.<%= fetch(:fully_qualified_domain_name) %>
+  <% end %>
   
   # Setup a balancing cluster to manage requests to our application.
   #
@@ -32,14 +38,21 @@
   
   # Prettier error messages
   #
-  ErrorDocument 404 /404.html
+  <%= (400..417).collect { |i| "ErrorDocument #{i} /#{i}.html"}.join("\n  ") %>
   <%= (500..505).collect { |i| "ErrorDocument #{i} /500.html"}.join("\n  ") %>
   
   # Remove the leading www if it exists.
   # http://no-www.org/
   #
+  <% if fetch(:dns_name) == "www" %>
+  <% if rails_environment == "production" %>
+  RewriteCond %{HTTP_HOST} ^<%= fetch(:fully_qualified_domain_name) %>$ [NC]
+  RewriteRule ^(.*)$ http://<%= fetch(:domain) %>$1 [R=301,L]
+  <% end %>
+  <% else %>
   RewriteCond %{HTTP_HOST} ^www\.<%= fetch(:fully_qualified_domain_name) %>$ [NC]
   RewriteRule ^(.*)$ http://<%= fetch(:fully_qualified_domain_name) %>$1 [R=301,L]
+  <% end %>
 
   # Check for maintenance file and redirect all requests
   # This allows us to disable the website using rake deploy:web:disable
