@@ -69,16 +69,18 @@ namespace :apache do
     DESC
     as_administrator do
       sudo <<-SH
-        ln -nfs #{vhost_conf_path} #{apache_sites_vhost_conf_path}
+      ln -nfs #{vhost_conf_path} #{apache_sites_vhost_conf_path}
       SH
     end
   end
-  
+
   desc "Enable the site"
   task :enable_site, :roles => [ :web ] do
-    run <<-SH
+    as_administrator do
+      sudo <<-SH
       #{fetch(:apache_enable_site_command)}
-    SH
+      SH
+    end
   end
 end
 
