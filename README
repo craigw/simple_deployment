@@ -144,13 +144,16 @@ If anything goes wrong (it's quite likely - this is a very new recipe) please
 let me know: craig@xeriom.net.
 
 
-Credit
-------
+Credit and Thanks
+-----------------
 
 This plugin was inspired by Mathie's rubaidh_platform plugin.
   http://repos.rubaidh.com/plugins/trunk/rubaidh_platform/
 I've changed and added quite a bit of code to fit in with how our projects 
 work.
+
+Thanks to Andrew Henson who is helping test the deployment platform and 
+contributes patches to fix the bugs I introduce.
 
 Licence
 -------
