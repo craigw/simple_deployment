@@ -129,8 +129,8 @@ For the first deployment we'll need to do a little housekeeping so we run a
 special task.
 
   cap production deploy:setup
-  cap production apache:symlink
   cap production deploy:initial
+  cap production apache:symlink
 
 For subsequent deploys you can run the regular task.
 
