@@ -13,11 +13,13 @@ namespace :subversion do
     if fetch(:create_tags_on_deploy)
       tag = "#{fetch(:repository_tag_base)}#{Time.as_subversion_tag}_#{stage}"
       logger.info "Tagging this release as #{tag}"
-      tag_does_not_exist = `svn ls #{tag} --username #{fetch(:scm_username)} --password #{fetch(:scm_password)} 2> /dev/null` == ""
+      tag_does_not_exist = `svn ls #{tag} --username #{fetch(:scm_username)} --password #{fetch(:scm_password)} --no-auth-cache --non-interactive 2> /dev/null` == ""
       if tag_does_not_exist
         tag_command = "svn copy \
         --username #{fetch(:scm_username)} \
         --password #{fetch(:scm_password)} \
+        --no-auth-cache \
+        --non-interactive \
         -m '#{application} deployed to #{stage}' \
         #{repository} #{tag}"
         `#{tag_command}`
