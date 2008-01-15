@@ -1,5 +1,6 @@
-set :scm_username, ENV['USER']
-set :scm_auth_cache, true
+set(:scm_password) { abort "You must set :scm_username for deployment" }
+set(:scm_password) { abort "You must set :scm_password for deployment" }
+set :scm_auth_cache, false
 set(:repository_root) { raise }
 set(:deploy_to) { "/var/www/#{fetch(:fully_qualified_domain_name)}" }
 set :deploy_via, :remote_cache
@@ -12,9 +13,11 @@ namespace :subversion do
     if fetch(:create_tags_on_deploy)
       tag = "#{fetch(:repository_tag_base)}#{Time.as_subversion_tag}_#{stage}"
       logger.info "Tagging this release as #{tag}"
-      tag_does_not_exist = `svn ls #{tag} 2> /dev/null` == ""
+      tag_does_not_exist = `svn ls #{tag} --username #{fetch(:scm_username)} --password #{fetch(:scm_password)} 2> /dev/null` == ""
       if tag_does_not_exist
         tag_command = "svn copy \
+        --username #{fetch(:scm_username)} \
+        --password #{fetch(:scm_password)} \
         -m '#{application} deployed to #{stage}' \
         #{repository} #{tag}"
         `#{tag_command}`
