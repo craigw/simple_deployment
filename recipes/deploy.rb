@@ -34,7 +34,7 @@ set(:dns_name) { fetch(:application).downcase.gsub(/[^a-z0-9]/, '-') }
 # SSH options for using our identity file and to make ssh less scared
 # of everything.
 #
-ssh_options[:keys] = [ "#{ENV['HOME']}/.ssh/identity" ]
+ssh_options[:keys] = [ "#{ENV['HOME']}/.ssh/identity", "#{ENV['HOME']}/.ssh/id_rsa" ]
 ssh_options[:paranoid] = false
 ssh_options[:forward_agent] = true
 
