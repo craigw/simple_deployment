@@ -1,4 +1,4 @@
-set(:scm_password) { abort "You must set :scm_username for deployment" }
+set(:scm_username) { abort "You must set :scm_username for deployment" }
 set(:scm_password) { abort "You must set :scm_password for deployment" }
 set :scm_auth_cache, false
 set(:repository_root) { raise }
