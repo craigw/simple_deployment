@@ -42,6 +42,9 @@ ssh_options[:forward_agent] = true
 #
 default_run_options[:pty] = true
 
+set :keep_releases, 3 # Only keep three past releases.
+set :use_sudo, false
+
 task :capture_application_username do
   set :application_username, fetch(:user)
 end
