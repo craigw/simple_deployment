@@ -37,11 +37,11 @@ namespace :mongrel do
   end
 
   task :start, :roles => [ :app ] do
-    run "cd #{current_path} && mongrel_rails cluster::start -C #{fetch(:mongrel_config)}"
+    run "cd #{current_path} && #{fetch(:mongrel_rails_command)} cluster::start -C #{fetch(:mongrel_config)}"
   end
 
   task :stop, :roles => [ :app ] do
-    run "cd #{current_path} && mongrel_rails cluster::stop -C #{fetch(:mongrel_config)}"
+    run "cd #{current_path} && #{fetch(:mongrel_rails_command)} cluster::stop -C #{fetch(:mongrel_config)}"
   end
 
   task :restart, :roles => [ :app ] do
