@@ -29,7 +29,7 @@ module ApplicationHelper
   def alternate_rows
     cycle("odd", "even")
   end
-  
+
   # Get a string suitable for use as a page title.
   #
   def page_title
@@ -44,15 +44,17 @@ module ApplicationHelper
       else
         ""
       end
-      
-      @page_title = h(if enclosing_resource.blank?
+
+      @page_title = h(
+      if enclosing_resource.blank?
         "#{action} #{name_of_resource}"
       else
         "#{action} #{name_of_resource} associated with #{name_of_enclosing_resource}"
-      end)
+      end
+      )
     end
   end
-  
+
   # Get the name of the current resource.
   #
   def name_of_resource(resource_object = resource)
@@ -64,18 +66,26 @@ module ApplicationHelper
       "#{controller.controller_name.singularize.humanize} #{resource_object.id}"
     end
   end
-  
+
   # Get the name if the enclosing resource, if any.
   #
   def name_of_enclosing_resource
     name_of_resource(enclosing_resource)
   end
-  
+
   # Provide a simple way of entering "call me" links in the same manner as
   # <code>mail_to</code>.
   def call_to(text, number = nil)
     text = "UNKNOWN" if text.blank?
     number = text if number.blank?
     link_to text, "callto://#{number}"
+  end
+
+  # Get the flash messages.
+  #
+  def flash_messages
+    flash.sort.collect do |level, message|
+      content_tag(:p, message, :class => "flash #{level}", :id => "flash_#{level}")
+    end.join("\n  ")
   end
 end
