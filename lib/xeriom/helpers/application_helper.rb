@@ -46,7 +46,7 @@ module ApplicationHelper
       end
 
       @page_title = h(
-      if enclosing_resource.blank?
+      if !respond_to?(:enclosing_resource?) || enclosing_resource.blank?
         "#{action} #{name_of_resource}"
       else
         "#{action} #{name_of_resource} associated with #{name_of_enclosing_resource}"
@@ -57,7 +57,8 @@ module ApplicationHelper
 
   # Get the name of the current resource.
   #
-  def name_of_resource(resource_object = resource)
+  def name_of_resource(resource_object = nil)
+    resource_object ||= respond_to?(:resource) ? resource : nil
     if resource_object.respond_to?(:name)
       (resource_object.new_record? || resource_object.name.blank?) ? "new #{controller.controller_name.singularize.humanize.downcase}" : resource_object.name
     elsif resource_object.nil?
